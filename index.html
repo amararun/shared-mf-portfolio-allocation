@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MF Portfolio Files Processor - AI Enabled</title>
+    <!-- Add Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Add Roboto font -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Adding Material Icons -->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- Add SQL.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/sql-wasm.js"></script>
+    <!-- Link to external CSS file -->
+    <link href="assets/css/styles.css" rel="stylesheet">
+    <!-- Include configuration -->
+    <script src="assets/js/config.js" defer></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        indigo: {
+                            50: '#eef2ff',
+                            100: '#e0e7ff',
+                            200: '#c7d2fe',
+                            600: '#4f46e5',
+                            700: '#4338ca',
+                            800: '#3730a3',
+                            900: '#312e81',
+                            950: '#1e1b4b',
+                        },
+                    },
+                },
+            },
+        }
+    </script>
+    <style>
+        /* All styles have been moved to styles.css */
+    </style>
+</head>
+
+<body class="bg-slate-50">
+    <!-- Modern header with Tailwind CSS -->
+    <header class="bg-gradient-to-r from-indigo-950 to-indigo-900 flex justify-between items-center px-3 py-1 mb-2">
+        <div class="flex items-center gap-2">
+            <img src="assets/images/FX_ROUND_TRANSPARENT_WHITE_FONT_FXONLY_MAY225.png" alt="FX Logo" class="h-6 w-auto">
+            <h1 class="text-lg font-medium text-white">MF Portfolio File Converter : AI Schema Detection</h1>
+        </div>
+    </header>
+    
+    <div class="controls-container">
+        <div class="file-controls">
+            <div class="top-controls">
+                <input type="file" id="mfFileInput" accept=".xlsx,.xls" style="display: none;">
+                <button class="upload-button" id="uploadButton">
+                    <span class="material-icons">upload</span>
+                    Upload
+                </button>
+                <input type="text" class="primary-input" id="sheetNameInput" placeholder="Sheet Name">
+                <input type="text" class="primary-input" id="schemeNameInput" placeholder="SCHEME NAME (ANY)">
+                <input type="date" class="primary-input" id="monthEndInput">
+                <select class="delimiter-select" id="delimiterInput">
+                    <option value="|">Pipe (|)</option>
+                    <option value=",">Comma (,)</option>
+                    <option value="\\t">Tab</option>
+                </select>
+            </div>
+            <div class="file-name-display">
+                <span>Name of File:</span>
+                <span id="selectedFileName">No file selected</span>
+            </div>
+            <div class="button-row main-buttons -mt-1">
+                <button id="mfProcessButton" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5.25 5.653c0-.856.917-1.398 1.667-.986l11.54 6.347a1.125 1.125 0 0 1 0 1.972l-11.54 6.347c-.75.412-1.667-.13-1.667-.986V5.653Z" />
+                    </svg>
+                    Process - AI
+                </button>
+                <button id="overrideButton" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    </svg>
+                    Manual Override
+                </button>
+                <button id="downloadButton2" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5m0 0L7.5 12m4.5 4.5V3" />
+                    </svg>
+                    Download
+                </button>
+                <button id="appendButton" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Append
+                </button>
+                <button id="transposeButton" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 21 3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" />
+                    </svg>
+                    Transpose
+                </button>
+            </div>
+            <!-- Secondary button row -->
+            <div class="button-row secondary-buttons">
+                <button id="placeholderBtn1" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M9.594 3.94c.09-.542.56-.94 1.11-.94h2.593c.55 0 1.02.398 1.11.94l.213 1.281c.063.374.313.686.645.87.074.04.147.083.22.127.325.196.72.257 1.075.124l1.217-.456a1.125 1.125 0 0 1 1.37.49l1.296 2.247a1.125 1.125 0 0 1-.26 1.431l-1.003.827c-.293.241-.438.613-.43.992a7.723 7.723 0 0 1 0 .255c-.008.378.137.75.43.991l1.004.827c.424.35.534.955.26 1.43l-1.298 2.247a1.125 1.125 0 0 1-1.369.491l-1.217-.456c-.355-.133-.75-.072-1.076.124a6.47 6.47 0 0 1-.22.128c-.331.183-.581.495-.644.869l-.213 1.281c-.09.543-.56.94-1.11.94h-2.594c-.55 0-1.019-.398-1.11-.94l-.213-1.281c-.062-.374-.312-.686-.644-.87a6.52 6.52 0 0 1-.22-.127c-.325-.196-.72-.257-1.076-.124l-1.217.456a1.125 1.125 0 0 1-1.369-.49l-1.297-2.247a1.125 1.125 0 0 1 .26-1.431l1.004-.827c.292-.24.437-.613.43-.991a6.932 6.932 0 0 1 0-.255c.007-.38-.138-.751-.43-.992l-1.004-.827a1.125 1.125 0 0 1-.26-1.43l1.297-2.247a1.125 1.125 0 0 1 1.37-.491l1.216.456c.356.133.751.072 1.076-.124.072-.044.146-.086.22-.128.332-.183.582-.495.644-.869l.214-1.28Z" />
+                    </svg>
+                    Models
+                </button>
+                <button id="placeholderBtn3" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Cmg. Sn
+                </button>
+                <button id="placeholderBtn4" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+                    </svg>
+                    Cmg. Sn.
+                </button>
+                <button id="legendButton" class="control-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 mr-1.5">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" />
+                    </svg>
+                    Legend
+                </button>
+            </div>
+        </div>
+        <div class="stats-container">
+            <table class="stats-table">
+                <tr>
+                    <td class="stats-label">Cash-Dervt/Diff Amt</td>
+                    <td class="stats-value stats-value-numeric" id="diffAmtDisplay">Waiting...</td>
+                    <td class="stats-label" id="schemaModelLabel">Schema-Main/gemini-2.0-flash-001</td>
+                    <td class="stats-value stats-value-numeric" id="schemaAnalysisDisplay">Waiting...</td>
+                </tr>
+                <tr>
+                    <td class="stats-label">Total Quantity/ txt file</td>
+                    <td class="stats-value stats-value-numeric" id="totalQuantityDisplay">Waiting...</td>
+                    <td class="stats-label" id="geminiSchemaLabel">Schema-Validation/gpt-4.1-mini</td>
+                    <td class="stats-value stats-value-numeric" id="geminiSchemaDisplay">Waiting...</td>
+                </tr>
+                <tr>
+                    <td class="stats-label">T-MV / txt file</td>
+                    <td class="stats-value stats-value-numeric" id="totalValueDisplay">Waiting ...</td>
+                    <td class="stats-label" id="openaiModelLabel">T-MV-Main/gemini-2.0-flash-001</td>
+                    <td class="stats-value stats-value-numeric" id="openAITotalValueDisplay">Waiting...</td>
+                </tr>
+                <tr>
+                    <td class="stats-label">Num. Records</td>
+                    <td class="stats-value stats-value-numeric" id="recordCountDisplay">Waiting ...</td>
+                    <td class="stats-label" id="geminiModelLabel">T-MV-Validation/gpt-4o-mini</td>
+                    <td class="stats-value stats-value-numeric" id="geminiTotalValueDisplay">Waiting...</td>
+                </tr>
+                <tr>
+                    <td class="stats-label">TBD 2</td>
+                    <td class="stats-value stats-value-numeric" id="investmentStyleDisplay"></td>
+                    <td class="stats-label">TBD 1</td>
+                    <td class="stats-value stats-value-numeric" id="performanceScoreDisplay"></td>
+                </tr>
+            </table>
+        </div>
+        <div class="mf-console-container">
+            <div class="console-header">
+                <span>Processing Logs</span>
+                <span id="expandLogsBtn" class="expand-icon" title="Expand logs">
+                    <span class="material-icons">open_in_full</span>
+                </span>
+            </div>
+            <div id="mfConsoleOutput"></div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="analysis-container">
+            <div class="tabs-container">
+                <div class="tabs">
+                    <div class="tab-buttons">
+                        <button class="tab-button active" data-tab="data">Data Table</button>
+                    </div>
+                    <span id="expandTableBtn" class="expand-icon" title="Expand table">
+                        <span class="material-icons">open_in_full</span>
+                    </span>
+                </div>
+                <div class="tab-content">
+                    <div id="data" class="tab-pane active">
+                        <div class="data-table-container">
+                            <pre id="outputContainer"></pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="tableModal">
+        <div class="modal-content">
+            <button class="close-modal">
+                <span class="material-icons">close</span>
+                Close
+            </button>
+            <div class="modal-table-container">
+                <!-- The expanded table will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Override Modal -->
+    <div id="overrideModal" class="modal-overlay">
+        <div class="modal-content override-modal-content">
+            <h3 class="modal-title">Manual Schema Override</h3>
+            <p class="modal-description">Use this override when AI processing fails to correctly identify the data start row or column references.</p>
+            <form id="overrideForm" class="override-form">
+                <div class="form-group">
+                    <label for="dataStartRow">Data Start Row</label>
+                    <input type="number" id="dataStartRow" min="1" placeholder="Enter row number (e.g. 5)" required>
+                </div>
+                <div class="form-group">
+                    <label for="isinColumn">ISIN</label>
+                    <input type="text" id="isinColumn" pattern="[A-Za-z]" maxlength="1" placeholder="Enter column letter (A-Z)" required>
+                </div>
+                <div class="form-group">
+                    <label for="instrumentNameColumn">Instrument Name</label>
+                    <input type="text" id="instrumentNameColumn" pattern="[A-Za-z]" maxlength="1" placeholder="Enter column letter (A-Z)" required>
+                </div>
+                <div class="form-group">
+                    <label for="marketValueColumn">Market Value</label>
+                    <input type="text" id="marketValueColumn" pattern="[A-Za-z]" maxlength="1" placeholder="Enter column letter (A-Z)" required>
+                </div>
+                <div class="form-group last-form-group">
+                    <label for="quantityColumn">Quantity</label>
+                    <input type="text" id="quantityColumn" pattern="[A-Za-z]" maxlength="1" placeholder="Enter column letter (A-Z)" required>
+                </div>
+                <div class="form-buttons">
+                    <button type="button" id="cancelOverride" class="control-button">Cancel</button>
+                    <button type="submit" class="control-button">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Add the logs modal -->
+    <div id="logsModal" class="modal-overlay">
+        <div class="modal-content logs-modal-content">
+            <button class="close-modal">
+                <span class="material-icons">close</span>
+                Close
+            </button>
+            <div class="modal-logs-container">
+                <!-- The expanded logs will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Legend Modal -->
+    <div id="legendModal" class="modal-overlay">
+        <div class="modal-content legend-modal-content">
+            <button class="close-modal">
+                <span class="material-icons">close</span>
+            </button>
+            <h3 class="modal-title">Legend & Explanations</h3>
+            <div class="legend-note">
+                <span class="material-icons warning-icon">warning</span>
+                Any cell turning orange with an icon indicates a validation issue that needs further review.
+            </div>
+            <table class="legend-table">
+                <tr>
+                    <th class="field-column">Field</th>
+                    <th>Description</th>
+                </tr>
+                <tr>
+                    <td>T-MV / txt file</td>
+                    <td>Total market value from the created text file.</td>
+                </tr>
+                <tr>
+                    <td>Num of records / txt file</td>
+                    <td>Number of records from the created text file, used for validation against the ISIN count from the Excel file.</td>
+                </tr>
+                <tr>
+                    <td>T-MV /gpt-4o-mini</td>
+                    <td>Total market value from the input Excel file as identified by OpenAI model. Used for calculating Cash/Derivatives difference amount. Orange color indicates variance from Gemini value requiring review.</td>
+                </tr>
+                <tr>
+                    <td>T-MV /'validation llm model name'</td>
+                    <td>Total market value from the input Excel file as identified by the validation llm model chosen. Additional value obtained for validation purposes. Orange color indicates variance from OpenAI value requiring review.</td>
+                </tr>
+                <tr>
+                    <td>Total Quantity/ txt file</td>
+                    <td>Total quantity from the text file for validation purposes.</td>
+                </tr>
+                <tr>
+                    <td>Schema /gpt-4o</td>
+                    <td>Schema from OpenAI in format (e.g., 8-C-B-G-F): Row number followed by column letters for ISIN, Instrument Name, Market Value, and Quantity respectively.Used for data import</td>
+                </tr>
+                <tr>
+                    <td>Schema /'validation llm model name'</td>
+                    <td>Schema from validation llm model in same format as above. Additional schema obtained for validation purposes. Orange color indicates mismatch with OpenAI schema.</td>
+                </tr>
+                <tr>
+                    <td>Cash/ Derivatives / Diff Amt</td>
+                    <td>Balancing amount for non-ISIN items (cash, derivatives, TRIPS). Calculated as difference between Excel T-NAV (OpenAI) and text file T-NAV. Added as last line with ISIN IN9999999999.</td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- Add Models Modal -->
+    <div id="modelsModal" class="fixed inset-0 bg-black/40 flex items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-xl shadow-lg max-w-2xl w-[90%] mt-[15vh] mx-auto p-6 border border-gray-200">
+            <h3 class="text-xl font-medium text-indigo-600 mb-2">Model Configuration</h3>
+            <p class="text-sm text-gray-600 mb-4">
+                Configure the AI models used for structure analysis and market value detection.
+            </p>
+            <form id="modelsForm" class="space-y-4">
+                <div class="bg-indigo-50/80 rounded-lg p-5 border border-indigo-100">
+                    <div class="grid grid-cols-[1fr,2fr,2fr] gap-4">
+                        <!-- Column Headers -->
+                        <div></div>
+                        <div class="text-sm font-medium text-indigo-900 text-center">Primary Model</div>
+                        <div class="text-sm font-medium text-indigo-900 text-center">Verification Model</div>
+                        
+                        <!-- Structure Row -->
+                        <div class="text-sm font-medium text-indigo-900">Structure</div>
+                        <div>
+                            <select id="openaiStructure" class="model-dropdown w-full px-3 py-1.5 text-sm border border-indigo-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                            </select>
+                        </div>
+                        <div>
+                            <select id="openrouterStructure" class="model-dropdown w-full px-3 py-1.5 text-sm border border-indigo-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                            </select>
+                        </div>
+                        
+                        <!-- Market Value Row -->
+                        <div class="text-sm font-medium text-indigo-900">Market Value</div>
+                        <div>
+                            <select id="openaiMarketValue" class="model-dropdown w-full px-3 py-1.5 text-sm border border-indigo-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                            </select>
+                        </div>
+                        <div>
+                            <select id="openrouterMarketValue" class="model-dropdown w-full px-3 py-1.5 text-sm border border-indigo-200 rounded-md focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 bg-white">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-end gap-3 mt-4">
+                    <button type="button" id="cancelModels" class="px-4 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 transition-colors">
+                        Cancel
+                    </button>
+                    <button type="submit" class="px-4 py-1.5 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700 transition-colors shadow-sm">
+                        Apply Models
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- End Models Modal -->
+
+    <!-- Load required JavaScript modules -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.0/xlsx.full.min.js"></script>
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/modules/file-appender.js" type="module"></script>
+    <script src="assets/js/modules/file-transposer.js" type="module"></script>
+    <script type="module" src="assets/js/main.js"></script>
+    
+    <footer class="footer">
+        Amar Harolikar <span>•</span> Specialist - Decision Sciences & Applied Generative AI <span>•</span>
+        <a href="https://www.linkedin.com/in/amarharolikar" target="_blank" rel="noopener noreferrer">LinkedIn</a> <span>•</span>
+        <a href="https://rex.tigzig.com" target="_blank" rel="noopener noreferrer">rex.tigzig.com</a> <span>•</span>
+        <a href="https://tigzig.com" target="_blank" rel="noopener noreferrer">tigzig.com</a>
+    </footer>
+    <!-- Statcounter Code -->
+    <script type="text/javascript">
+        var sc_project = 13047808;
+        var sc_invisible = 1;
+        var sc_security = "b480b311";
+    </script>
+    <script type="text/javascript" src="https://www.statcounter.com/counter/counter.js" async></script>
+    <noscript>
+        <div class="statcounter">
+            <a title="web stats" href="https://statcounter.com/" target="_blank">
+                <img class="statcounter" src="https://c.statcounter.com/13047808/0/b480b311/1/" alt="web stats" referrerPolicy="no-referrer-when-downgrade" />
+            </a>
+        </div>
+    </noscript>
+    <!-- End of Statcounter Code -->
+</body>
+
+</html>
