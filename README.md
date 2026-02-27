@@ -1,3 +1,6 @@
+> [\!NOTE]
+> This repository is a working example of the concept described below. It may not yet include all recommended security hardening measures. My newer repositories now have robust security at both frontend and backend layers — rate limiting, SQL validation, concurrency controls, error sanitization, and more. You can use this repo to understand the core concept, but please apply security best practices before deploying to production. See my [80+ item Security Checklist](https://tigzig.com/security) and [live hardened examples](https://tigzig.com/security-examples) for reference.
+
 # MF Portfolio File Converter
 
 This application automates the processing of mutual fund portfolio disclosure files from India. It uses AI-powered schema detection to extract holdings data from Excel files, validates results across multiple AI models, and generates standardized text files with ISIN mappings and symbol enrichment. The tool handles various file formats, provides manual override options, and includes advanced features like file appending, data transposition, and cross-model validation for data integrity.
